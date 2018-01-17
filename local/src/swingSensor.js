@@ -9,6 +9,7 @@ obtain(['./src/hardware.js', 'µ/utilities.js', 'fs'], ({ hardware }, { averager
       var scale = [];
 
       var readInterval = null;
+      var initTO = null;
 
       var confDir = './sensorCalibrations.json';
 
@@ -44,8 +45,10 @@ obtain(['./src/hardware.js', 'µ/utilities.js', 'fs'], ({ hardware }, { averager
 
       hardware.on('ready', ()=> {
         console.log('Got the ready signal');
-        readInterval = setInterval(hardware.requestSensorData, 100);
-        setTimeout(_this.recordInitial, 2000);
+        clearInterval(readInterval);
+        clearTimeout(initTO);
+        readInterval = setInterval(hardware.requestSensorData, 50);
+        initTO = setTimeout(_this.recordInitial, 2000);
       });
 
       _this.recordInitial = ()=> {
