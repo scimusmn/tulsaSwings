@@ -55,8 +55,8 @@ obtain(['µ/serial.js'], (ser)=> {
 
     };
 
-    _this.setup = ()=> {
-      serial.open({ manufacturer: 'FTDI', baud: 115200 });
+    _this.setup = (opts)=> {
+      serial.open(opts);
     };
 
   };

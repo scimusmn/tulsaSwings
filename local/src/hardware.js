@@ -33,7 +33,7 @@ obtain(['./src/serialParser.js', 'events'], ({ serialParser }, EventEmitter)=> {
           _this.onSensorData(data[0], tot);
         });
 
-        parser.setup();
+        parser.setup({ name: 'ttyS0', baud: 115200 });
 
         _this.requestSensorData = ()=> {
           parser.sendPacket([1, REQUEST_DATA]);
