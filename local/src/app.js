@@ -22,7 +22,7 @@ var obtains = [
 ];
 
 obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
-  var control = new MuseControl('sensor-server.net');
+  var control = new MuseControl('172.91.0.1');
 
   exports.app = {};
 
