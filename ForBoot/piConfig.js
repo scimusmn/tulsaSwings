@@ -1,9 +1,9 @@
 exports.config = {
   piFig: {
     /*wifiHotspot: {
-      ssid: 'Template',
-      password: 'template!',
-      domainName: 'template.net',
+      ssid: 'SensorServer',
+      password: 'defaultPass',
+      domainName: 'sensor-server.net',
     },*/
     autostart: true,
     gitWatch: true,
@@ -11,10 +11,10 @@ exports.config = {
       monitorPin: 24,
       controlPin: 25,
       delayTime: 1000,
-    },
+    },*/
     wifi: {
       ssid: 'SensorServer',
       password: 'defaultPass',
-    },*/
+    },
   },
 };
