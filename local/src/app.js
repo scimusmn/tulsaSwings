@@ -84,7 +84,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
       tracks.forEach(setupFunc);
       tracks.forEach((track)=> {
         if (data.syncTracks) {
-          track.onload = syncPlayback.bind(track);
+          track.addEventListener('load', syncPlayback.bind(track));
           track.onended = syncPlayback.bind(track);
         }
       });
