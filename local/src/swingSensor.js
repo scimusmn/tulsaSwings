@@ -32,6 +32,7 @@ obtain(['./src/hardware.js', 'µ/utilities.js', 'fs'], ({ hardware }, { averager
         raw.forEach((val, i)=> {
           tares[i] = init[i];
           scale[i] = 3 * (raw[i].ave - tares[i]) / 25;
+          console.log(raw[i].ave);
         });
 
         var calib = {};

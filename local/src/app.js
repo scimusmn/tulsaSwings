@@ -26,55 +26,18 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
 
   exports.app = {};
 
-  var track = null;
+  var tracks = [];
 
   exports.app.start = ()=> {
     var syncInt = null;
     var startTime = 0;
 
     var ctrlFunc = (swing, audio)=> {
-      /*var swingDist = Math.sqrt(Math.pow(swing.point.x, 2) + Math.pow(swing.point.y, 2));
-      if (swingDist > .10 && !swing.high && Date.now() - swing.lastHigh > 100) {
-        swing.lastHigh = Date.now();
-        if (!swing.active) {
-          swing.active = true;
-          audio.rampUp();
-          console.log('start');
-        }
 
-        swing.high = true;
-      } else if (swingDist < .1) {
-        swing.high = false;
-      }
-
-      if (Date.now() - swing.lastHigh > 5000 && swing.active) {
-        swing.active = false;
-        audio.rampDown();
-        console.log('stop');
-      }
-
-      if (!swing.lastHigh) swing.lastHigh = Date.now();*/
     };
 
-    control.onConnect = ()=> {
-      control.send({ _id: config._id });
-      syncInt = setInterval(control.synchronize, 60000);
-    };
-
-    var syncPlayback = ()=> {
-      var timeOffset = (control.getServerTime() - startTime) / 1000;
-      console.log(track.duration);
-      console.log(timeOffset);
-      track.currentTime = timeOffset % track.duration;
-      console.log(timeOffset % track.duration);
-      track.play();
-    };
-
-    control.addListener('audioFile', (data)=> {
-      //console.log(data);
-      if (track) track.pause();
-      track = new Audio(data);
-      //track.loop = true;
+    var setupFunc = (track, num)=> {
+      track.volume = 1;
       track.rampTime = 2;
       track.rampUp = ()=> {
         track.volume = Math.min(1, Math.max(0, track.volume + .01));
@@ -87,20 +50,52 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
         clearTimeout(track.ramperTO);
         if (track.volume > 0) track.ramperTO = setTimeout(track.rampDown, track.rampTime * 10);
       };
+    };
 
-      track.onended = syncPlayback;
-      track.volume = 1;
+    control.onConnect = ()=> {
+      control.send({ _id: config._id });
+      syncInt = setInterval(control.synchronize, 60000);
+    };
+
+    var syncPlayback = function () {
+      var timeOffset = (control.getServerTime() - startTime) / 1000;
+      console.log(this.duration);
+      console.log(timeOffset);
+      this.currentTime = timeOffset % this.duration;
+      console.log(timeOffset % this.duration);
+      this.play();
+    };
+
+    control.addListener('audioConfig', (data)=> {
+      //console.log(data);
+      if (data.setupFunc) {
+        setupFunc = eval('//# sourceURL=remoteSetup\n ()=>{ \nreturn ' + data.setupFunc + '}')();
+      }
+
+      if (data.ctrlFunc) {
+        ctrlFunc = eval('//# sourceURL=remoteInstructions\n ()=>{ \nreturn ' + data.ctrlFunc + '}')();
+      }
+
+      if (tracks) tracks.length = 0;
+
+      tracks = data.tracks.map(name=>new Audio(name));
+      tracks.forEach(setupFunc);
+      tracks.forEach((track)=> {
+        track.sync = data.syncTracks;
+        if (data.syncTracks) track.onended = syncPlayback.bind(track);
+      });
+
+      //track.loop = true;
     });
 
     control.addListener('startPlayTime', (time)=> {
-      if (track) {
+      if (tracks.length) {
         startTime = time;
-        setTimeout(syncPlayback, 500);
-      }
-    });
+        tracks.forEach(track=> {
+          if (track.sync) setTimeout(syncPlayback.bind(track), 500);
+        });
 
-    control.addListener('controlFunc', (func)=> {
-      ctrlFunc = eval('//# sourceURL=remoteInstructions\n ()=>{ \nreturn ' + func + '}')();
+      }
     });
 
     control.connect();
@@ -116,7 +111,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
     var lastHigh = 0;
 
     var posCheckInt = setInterval(()=> {
-      ctrlFunc(swing, track);
+      ctrlFunc(swing, tracks);
     }, 100);
 
     console.log('started');
