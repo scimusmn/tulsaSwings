@@ -85,10 +85,12 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
       tracks.forEach(setupFunc);
       if (data.syncTracks) {
         tracks.forEach((track, i)=> {
-          console.log('setup sync on ' + track.src);
-          //µ('body')[0].appendChild(track);
-          track.addEventListener('loadeddata', syncPlayback.bind(track));
-          track.onended = syncPlayback.bind(track);
+          if (!track.syncSet) {
+            console.log('setup sync on ' + i);
+            //µ('body')[0].appendChild(track);
+            track.addEventListener('loadeddata', syncPlayback.bind(track));
+            track.onended = syncPlayback.bind(track);
+          }
         });
       }
 
