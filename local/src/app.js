@@ -78,17 +78,21 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
 
       if (tracks) tracks.length = 0;
 
+      if (data.startPlayTime) startTime = data.startPlayTime;
+
       tracks = data.tracks.map(name=>new Audio(name));
       tracks.forEach(setupFunc);
       tracks.forEach((track)=> {
-        track.sync = data.syncTracks;
-        if (data.syncTracks) track.onended = syncPlayback.bind(track);
+        if (data.syncTracks) {
+          track.onload = syncPlayback.bind(track);
+          track.onended = syncPlayback.bind(track);
+        }
       });
 
       //track.loop = true;
     });
 
-    control.addListener('startPlayTime', (time)=> {
+    /*control.addListener('startPlayTime', (time)=> {
       if (tracks.length) {
         startTime = time;
         tracks.forEach(track=> {
@@ -96,7 +100,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
         });
 
       }
-    });
+    });*/
 
     control.connect();
 
