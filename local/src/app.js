@@ -90,7 +90,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
         }
       });
 
-      name.forEach((name, i)=>tracks[i].src = name);
+      data.tracks.forEach((name, i)=>tracks[i].src = name);
 
       //track.loop = true;
     });
