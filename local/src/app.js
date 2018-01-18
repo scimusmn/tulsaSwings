@@ -58,6 +58,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
     };
 
     var syncPlayback = function () {
+      console.log('Syncing playback');
       var timeOffset = (control.getServerTime() - startTime) / 1000;
       console.log(this.duration);
       console.log(timeOffset);
@@ -80,7 +81,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
 
       if (data.startPlayTime) startTime = data.startPlayTime;
 
-      tracks = data.tracks.map(name=>new Audio(name));
+      tracks = data.tracks.map(name=>new Audio());
       tracks.forEach(setupFunc);
       tracks.forEach((track)=> {
         if (data.syncTracks) {
@@ -88,6 +89,8 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
           track.onended = syncPlayback.bind(track);
         }
       });
+
+      name.forEach((name, i)=>tracks[i].src = name);
 
       //track.loop = true;
     });
