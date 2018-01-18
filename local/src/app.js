@@ -83,12 +83,14 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
 
       tracks = data.tracks.map(name=>new Audio());
       tracks.forEach(setupFunc);
-      tracks.forEach((track)=> {
-        if (data.syncTracks) {
-          track.addEventListener('load', syncPlayback.bind(track));
+      if (data.syncTracks) {
+        tracks.forEach((track)=> {
+          console.log('setup sync');
+          //µ('body')[0].appendChild(track);
+          track.addEventListener('loadeddata', syncPlayback.bind(track));
           track.onended = syncPlayback.bind(track);
-        }
-      });
+        });
+      }
 
       data.tracks.forEach((name, i)=>tracks[i].src = name);
 
