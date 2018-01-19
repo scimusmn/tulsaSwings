@@ -52,8 +52,14 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
       };
     };
 
+    var link = false;
+
     control.onConnect = ()=> {
-      control.send({ _id: config._id });
+      if (!link) {
+        control.send({ _id: config._id });
+        link = true;
+      }
+
       syncInt = setInterval(control.synchronize, 60000);
     };
 
@@ -68,6 +74,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
     };
 
     control.addListener('audioConfig', (data)=> {
+      console.log('received audio config packet');
       //console.log(data);
       if (data.setupFunc) {
         setupFunc = eval('//# sourceURL=remoteSetup\n ()=>{ \nreturn ' + data.setupFunc + '}')();
