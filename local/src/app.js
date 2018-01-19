@@ -52,29 +52,27 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
       };
     };
 
-    var link = false;
-
     control.onConnect = ()=> {
-      if (!link) {
-        control.send({ _id: config._id });
-        link = true;
-      }
+      control.send({ _id: config._id });
 
       syncInt = setInterval(control.synchronize, 60000);
     };
 
     var syncPlayback = function () {
-      console.log('Syncing playback');
-      var timeOffset = (control.getServerTime() - startTime) / 1000;
-      console.log(this.duration);
-      console.log(timeOffset);
-      this.currentTime = timeOffset % this.duration;
-      console.log(timeOffset % this.duration);
-      this.play();
+      if (startTime) {
+        console.log('Syncing playback');
+        var timeOffset = (control.getServerTime() - startTime) / 1000;
+        console.log(this.duration);
+        console.log(timeOffset);
+        this.currentTime = timeOffset % this.duration;
+        console.log(timeOffset % this.duration);
+        this.play();
+      } else this.play();
+
     };
 
     control.addListener('audioConfig', (data)=> {
-      console.log('received audio config packet');
+      console.log('Configuring audio');
       //console.log(data);
       if (data.setupFunc) {
         setupFunc = eval('//# sourceURL=remoteSetup\n ()=>{ \nreturn ' + data.setupFunc + '}')();
@@ -84,18 +82,18 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
         ctrlFunc = eval('//# sourceURL=remoteInstructions\n ()=>{ \nreturn ' + data.ctrlFunc + '}')();
       }
 
-      if (tracks) tracks.length = 0;
-
       if (data.startPlayTime) startTime = data.startPlayTime;
 
-      tracks = data.tracks.map(name=>new Audio());
+      while (tracks.length < data.tracks.length) {
+        tracks.push(new Audio());
+      }
+
       tracks.forEach(setupFunc);
       if (data.syncTracks) {
         tracks.forEach((track, i)=> {
           if (!track.syncSet) {
-            console.log('setup sync on ' + i);
             //µ('body')[0].appendChild(track);
-            track.addEventListener('loadeddata', syncPlayback.bind(track));
+            if (data.startPlayTime) track.addEventListener('loadeddata', syncPlayback.bind(track));
             track.onended = syncPlayback.bind(track);
           }
         });
@@ -106,15 +104,15 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
       //track.loop = true;
     });
 
-    /*control.addListener('startPlayTime', (time)=> {
+    control.addListener('startPlayTime', (time)=> {
       if (tracks.length) {
         startTime = time;
         tracks.forEach(track=> {
-          if (track.sync) setTimeout(syncPlayback.bind(track), 500);
+          if (track.sync) track.addEventListener('loadeddata', syncPlayback.bind(track));
         });
 
       }
-    });*/
+    });
 
     control.connect();
 

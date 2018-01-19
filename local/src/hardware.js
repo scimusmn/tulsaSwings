@@ -24,9 +24,11 @@ obtain(['./src/serialParser.js', 'events'], ({ serialParser }, EventEmitter)=> {
           _this.buttonState = data[0];
         });
 
+        parser.sendPacket([1, READY]);
+
         var readyInt = setInterval(()=> {
           parser.sendPacket([1, READY]);
-        }, 500);
+        }, 5000);
 
         parser.on(READY, ()=> {
           clearInterval(readyInt);
