@@ -136,7 +136,12 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
       if (e.key == ' ') console.log('Space pressed');
     };
 
+    document.onkeydown = (e)=> {
+      console.log('down');
+    };
+
     document.onkeyup = (e)=> {
+      console.log('up');
       if (e.which == 27) {
         var electron = require('electron');
         process.kill(process.pid, 'SIGINT');
