@@ -23,13 +23,13 @@ var obtains = [
 
 obtain(obtains, ({ swing }, { MuseControl }, { cfg })=> {
   console.log(cfg);
-  var control = new MuseControl(cfg.server);
-
   exports.app = {};
 
   var tracks = [];
 
   exports.app.start = ()=> {
+    console.log(cfg);
+    var control = new MuseControl(cfg.server);
     var syncInt = null;
     var startTime = 0;
 
