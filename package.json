@@ -17,6 +17,7 @@
     "electron": "1.7.5"
   },
   "dependencies": {
+    "drivelist": "^6.2.2",
     "express": "^4.15.4",
     "path": "^0.12.7",
     "serialport": "^5.0.0",

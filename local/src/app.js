@@ -21,8 +21,8 @@ var obtains = [
   'µ/components',
 ];
 
-obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
-  var control = new MuseControl(config.server);
+obtain(obtains, ({ swing }, { MuseControl }, { cfg })=> {
+  var control = new MuseControl(cfg.server);
 
   exports.app = {};
 
@@ -54,7 +54,7 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
     };
 
     control.onConnect = ()=> {
-      control.send({ _id: config._id });
+      control.send({ _id: cfg._id });
 
       syncInt = setInterval(control.synchronize, 60000);
     };
