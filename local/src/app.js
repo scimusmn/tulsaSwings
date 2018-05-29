@@ -21,15 +21,15 @@ var obtains = [
   'µ/components',
 ];
 
-obtain(obtains, ({ swing }, { MuseControl }, { cfg })=> {
-  console.log(`${appData}/config.js`);
+obtain(obtains, ({ swing }, { MuseControl }, cfg)=> {
+
+  var control = new MuseControl(cfg.server);
+
   exports.app = {};
 
   var tracks = [];
 
   exports.app.start = ()=> {
-    console.log(require('/boot/appData/config.js'));
-    var control = new MuseControl(cfg.server);
     var syncInt = null;
     var startTime = 0;
 
