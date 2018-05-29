@@ -1,6 +1,16 @@
 'use strict';
 const electron = require('electron');
 
+if (!window) var window = global;
+
+window.appDataDir = (process.platform != 'linux') ?  './ForBoot/appData' :
+                (process.arch == 'x64') ? '/usr/local/appData' :
+                '/boot/appData';
+
+const config = require(appDataDir + '/config.js');
+
+if (config.preventStartup) process.exit(0);
+
 // Module to control application life.
 const app = electron.app;
 app.commandLine.appendSwitch('--enable-viewport-meta', 'true');
@@ -44,7 +54,7 @@ function createWindow() {
   }));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (config.showDevTools) mainWindow.webContents.openDevTools();
 
   mainWindow.webContents.session.clearCache(function () {
     //some callback.

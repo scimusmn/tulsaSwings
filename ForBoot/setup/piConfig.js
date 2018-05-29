@@ -12,8 +12,9 @@ exports.config = {
       controlPin: 25,
       delayTime: 1000,
     },*/
-    wifi: {
-      ssid: 'SensorServer',
+    wifiUser: {
+      ssid: 'SMM',
+      user: 'aheidgerken'
       password: 'defaultPass',
     },
   },

@@ -22,7 +22,7 @@ var obtains = [
 ];
 
 obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
-  var control = new MuseControl('172.91.0.1');
+  var control = new MuseControl(config.server);
 
   exports.app = {};
 
@@ -37,16 +37,17 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
     };
 
     var setupFunc = (track, num)=> {
-      track.volume = 1;
+      track.maxVolume = 1;
+      track.volume = 0;
       track.rampTime = 2;
       track.rampUp = ()=> {
-        track.volume = Math.min(1, Math.max(0, track.volume + .01));
+        track.volume = Math.min(track.maxVolume, Math.max(0, track.volume + .01));
         clearTimeout(track.ramperTO);
-        if (track.volume < 1) track.ramperTO = setTimeout(track.rampUp, track.rampTime * 10);
+        if (track.volume < track.maxVolume) track.ramperTO = setTimeout(track.rampUp, track.rampTime * 10);
       };
 
       track.rampDown = ()=> {
-        track.volume = Math.min(1, Math.max(0, track.volume - .01));
+        track.volume = Math.min(track.maxVolume, Math.max(0, track.volume - .01));
         clearTimeout(track.ramperTO);
         if (track.volume > 0) track.ramperTO = setTimeout(track.rampDown, track.rampTime * 10);
       };
@@ -114,6 +115,33 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
       }
     });
 
+    control.addListener('volumeUp', (time)=> {
+      if (tracks.length) {
+        tracks.forEach(track=> {
+          if (track.maxVolume) track.maxVolume += .1;
+          else track.maxVolume = .1;
+          if (track.maxVolume > 1) track.maxVolume = 1;
+
+          if (track.volume > track.maxVolume) track.volume = track.maxVolume;
+        });
+
+      }
+
+    });
+
+    control.addListener('volumeDown', (time)=> {
+      if (tracks.length) {
+        tracks.forEach(track=> {
+          if (track.maxVolume) track.maxVolume -= .1;
+          else track.maxVolume = .1;
+          if (track.maxVolume < .1) track.maxVolume = .1;
+          if (track.volume > track.maxVolume) track.volume = track.maxVolume;
+        });
+
+      }
+
+    });
+
     control.connect();
 
     var pollInt = setInterval(()=> {
@@ -131,10 +159,6 @@ obtain(obtains, ({ swing }, { MuseControl }, { config })=> {
     }, 100);
 
     console.log('started');
-
-    document.onkeypress = (e)=> {
-      if (e.key == ' ') console.log('Space pressed');
-    };
 
     document.onkeydown = (e)=> {
       console.log('down');
