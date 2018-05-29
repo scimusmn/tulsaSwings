@@ -22,6 +22,7 @@ var obtains = [
 ];
 
 obtain(obtains, ({ swing }, { MuseControl }, { cfg })=> {
+  console.log(cfg);
   var control = new MuseControl(cfg.server);
 
   exports.app = {};
