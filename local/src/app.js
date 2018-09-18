@@ -18,10 +18,13 @@ var obtains = [
   './src/swingSensor.js',
   'µ/commandClient.js',
   `${appData}/config.js`,
+  './src/control_1.js',
+  'electron',
+  'µ/utilities.js',
   'µ/components',
 ];
 
-obtain(obtains, ({ swing }, { MuseControl }, cfg)=> {
+obtain(obtains, ({ swing }, { MuseControl }, cfg, ctrl, { remote }, { map, distance, clamp })=> {
 
   var control = new MuseControl(cfg.server);
 
@@ -29,30 +32,15 @@ obtain(obtains, ({ swing }, { MuseControl }, cfg)=> {
 
   var tracks = [];
 
+  //remote.getCurrentWindow().hide();
+
   exports.app.start = ()=> {
     var syncInt = null;
     var startTime = 0;
 
-    var ctrlFunc = (swing, audio)=> {
+    var ctrlFunc = ctrl.func;
 
-    };
-
-    var setupFunc = (track, num)=> {
-      track.maxVolume = 1;
-      track.volume = 0;
-      track.rampTime = 2;
-      track.rampUp = ()=> {
-        track.volume = Math.min(track.maxVolume, Math.max(0, track.volume + .01));
-        clearTimeout(track.ramperTO);
-        if (track.volume < track.maxVolume) track.ramperTO = setTimeout(track.rampUp, track.rampTime * 10);
-      };
-
-      track.rampDown = ()=> {
-        track.volume = Math.min(track.maxVolume, Math.max(0, track.volume - .01));
-        clearTimeout(track.ramperTO);
-        if (track.volume > 0) track.ramperTO = setTimeout(track.rampDown, track.rampTime * 10);
-      };
-    };
+    var setupFunc = ctrl.setup;
 
     control.onConnect = ()=> {
       control.send({ _id: cfg._id });
@@ -86,6 +74,8 @@ obtain(obtains, ({ swing }, { MuseControl }, cfg)=> {
 
       if (data.startPlayTime) startTime = data.startPlayTime;
 
+      tracks.length = 0;
+
       while (tracks.length < data.tracks.length) {
         tracks.push(new Audio());
       }
@@ -116,7 +106,7 @@ obtain(obtains, ({ swing }, { MuseControl }, cfg)=> {
       }
     });
 
-    control.addListener('volumeUp', (time)=> {
+    /*control.addListener('volumeUp', (time)=> {
       if (tracks.length) {
         tracks.forEach(track=> {
           if (track.maxVolume) track.maxVolume += .1;
@@ -141,14 +131,23 @@ obtain(obtains, ({ swing }, { MuseControl }, cfg)=> {
 
       }
 
-    });
+    });*/
 
-    control.connect();
+    //////////////////////////////////////////////////
+    //local track handling
+
+    for (var i = 0; i < ctrl.tracks.length; i++) {
+      tracks.push(new Audio());
+    }
+
+    tracks.forEach(setupFunc);
+
+    //control.connect();
 
     var pollInt = setInterval(()=> {
-      µ('#track').style.left = (µ('#outer').offsetWidth / 2 + µ('#outer').offsetWidth * swing.point.x + 5) + 'px';
-      µ('#track').style.top = (µ('#outer').offsetHeight / 2 - µ('#outer').offsetHeight * swing.point.y + 5) + 'px';
-      µ('#weight').textContent = swing.totalWeight();
+      µ('#track').style.left = (µ('#outer').offsetWidth / 2 + µ('#outer').offsetWidth * swing.point.x * 3 + 5) + 'px';
+      µ('#track').style.top = (µ('#outer').offsetHeight / 2 - µ('#outer').offsetHeight * swing.point.y * 3 + 5) + 'px';
+      //µ('#weight').textContent = swing.totalWeight();
     }, 100);
 
     var high = false;
@@ -156,8 +155,8 @@ obtain(obtains, ({ swing }, { MuseControl }, cfg)=> {
     var lastHigh = 0;
 
     var posCheckInt = setInterval(()=> {
-      ctrlFunc(swing, tracks);
-    }, 100);
+      ctrl.func(swing, tracks);
+    }, 50);
 
     console.log('started');
 

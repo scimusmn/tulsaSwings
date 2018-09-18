@@ -1,7 +1,8 @@
-obtain(['./src/serialParser.js', 'events'], ({ serialParser }, EventEmitter)=> {
+obtain(['./src/serialParser.js', 'events', 'os'], ({ serialParser }, EventEmitter, os)=> {
   const TEACH_BUTTON =  64;
   const SENSOR_DATA = 32;
   const REQUEST_DATA = 48;
+  const DIRECTION = 8;
   const CALIBRATION_WEIGHT = 16;
   const READY = 127;
 
@@ -40,7 +41,13 @@ obtain(['./src/serialParser.js', 'events'], ({ serialParser }, EventEmitter)=> {
           _this.onSensorData(data[0], tot);
         });
 
-        parser.setup({ name: 'ttyS0', baud: 115200 });
+        var query = { name: '/dev/ttyS0', baud: 115200 };
+        if (os.platform() == 'darwin') query = {
+          manufacturer: 'FTDI',
+          baud: 115200,
+        };
+
+        parser.setup(query); //manufacturer: 'FTDI'
 
         _this.requestSensorData = ()=> {
           parser.sendPacket([1, REQUEST_DATA]);
@@ -48,6 +55,10 @@ obtain(['./src/serialParser.js', 'events'], ({ serialParser }, EventEmitter)=> {
 
         _this.onSensorData = (which, value)=> {
           console.log(value);
+        };
+
+        _this.setLights = (hue, sat, br)=> {
+          parser.sendPacket([1, DIRECTION, hue, sat, br]);
         };
       }
 

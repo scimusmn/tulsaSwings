@@ -1,5 +1,5 @@
 module.exports = {
-  showDevTools: false,
+  showDevTools: true,
   preventStartup: false,
   //tempo: 500,
   server: '172.17.69.76',
