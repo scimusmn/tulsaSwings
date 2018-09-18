@@ -3,6 +3,12 @@
 REPO_NAME=tulsaSwings
 ACCOUNT=scimusmn
 
+sudo cp ./wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.config
+
+sudo systemctl daemon-reload
+
+sudo systemctl restart dhcpcd
+
 echo -e "\nInstalling node:"
 
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
