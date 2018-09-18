@@ -20,7 +20,7 @@ var obtains = [
   './src/swingSensor.js',
   'µ/commandClient.js',
   // `${appData}/config.js`,
-  './src/control_1.js',
+  './src/control_2.js',
   // 'electron',
   'µ/utilities.js',
   'µ/components',
